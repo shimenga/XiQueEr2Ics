@@ -55,7 +55,7 @@ pip install -r requirements.txt
 订阅链接格式：
 
 ```
-https://你的域名/{学号}.ics?pwd={32位MD5密码}&remindTime=30&school_code=12623
+https://你的域名/{学号}.ics?pwd={32位MD5密码}&remindTime=30&school_code={院校代码}
 ```
 
 **API 参数说明：**
@@ -68,8 +68,6 @@ https://你的域名/{学号}.ics?pwd={32位MD5密码}&remindTime=30&school_code
 | `school_year` / `term` | 指定学年/学期 | 全部学期 |
 | `all_semesters` | 是否包含所有学期 | `true` |
 | `force` | 强制重新获取，忽略缓存 | `false` |
-
-> 📌 公开服务中 `school_code` 未填时默认使用 `12623`（华南农业大学珠江学院）。
 
 **环境变量：**
 
@@ -136,9 +134,6 @@ python xqe.py 202534140102 e19d5cd5af0378da05f63f891c7467af 30 12623
 | `FORCE` | 忽略缓存强制重新获取（可省略） |
 | 学年/学期 | 指定学期（如 `2026 0`），默认全部 |
 
-> 💡 忘记 MD5 怎么算？Linux/Mac：`echo -n "你的密码" | md5sum`；Windows PowerShell：
-> `[System.BitConverter]::ToString([System.Security.Cryptography.MD5]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes("密码"))).Replace("-","").ToLower()`
-
 ---
 
 ## 🏫 添加自己的学校
@@ -195,9 +190,5 @@ XiQueEr2ICS/
 
 ## 📝 版权与使用说明
 
-Copyright © 2026 [5hUtd0wN](https://blog.hishutdown.cn). All rights reserved.
-
-本项目源代码公开可见，但**未采用任何开源协议**：
-- **禁止二次分发**：未经明确许可，不得将本项目代码用于其他项目或进行二次分发。
-- **个人使用授权**：项目所有者授权任何人出于**个人学习或使用目的**自行搭建和运行本项目。
-- **保留撤回权利**：项目所有者保留随时无条件撤回上述授权的权利。
+Copyright © 2026 [5hUtd0wN](https://blog.hishutdown.cn).
+This project is released under the GNU Affero General Public License v3.0. 
