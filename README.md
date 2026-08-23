@@ -95,7 +95,7 @@ api_host=0.0.0.0 web_port=3000 root_path=/xqe2ics ./run-web.sh
 
 ```bash
 cd XiQueEr2ICS
-pip install -r requirements.txt   # 需 Node.js 环境（pyexecjs 依赖）
+pip install -r requirements.txt   # 纯 Python，无需 Node.js
 ```
 
 #### 2. 同步校历（每学期开学前运行一次）
@@ -141,7 +141,7 @@ python xqe.py 202534140102 e19d5cd5af0378da05f63f891c7467af 30 12623
 喜鹊儿接口各学校差异不大，可复制已有学校配置修改：
 
 1. 在 `schools/` 下创建以**学校代码**命名（纯数字）的文件夹
-2. 复制其他学校的 `config.json`、`timetable.json`、`jkingo.des.js`、`maintain.py` 等文件作为模板
+2. 复制其他学校的 `config.json`、`timetable.json`、`jkingo_des.py`（加密模块）、`maintain.py` 等文件作为模板
 3. 修改 `config.json` 匹配你的学校（`title`/`schoolCode`/`rootUrl`）
 4. 修改 `timetable.json` 配置上下课时间（各校作息不同，需手动配置）
 
@@ -182,7 +182,7 @@ XiQueEr2ICS/
         ├── config.json     # 学校配置
         ├── maintain.py     # 校历同步脚本
         ├── main.py         # 课表获取模块
-        ├── jkingo.des.js   # 加密脚本
+        ├── jkingo_des.py   # 登录加密（纯 Python DES，无需 Node.js）
         └── school_calendar.json  # 已同步的学期校历
 ```
 

@@ -55,9 +55,13 @@ def save_user_info(school_code: str, username: str, info: Dict[str, Any]):
 def load_cache(school_code: str, username: str) -> Dict[str, Any]:
     path = get_cache_path(school_code, username)
     if os.path.exists(path):
-        with _FILE_LOCK:
-            with open(path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+        try:
+            with _FILE_LOCK:
+                with open(path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+        except (json.JSONDecodeError, OSError):
+            # 缓存文件损坏（截断/非法 JSON/IO 错误）时按无缓存处理
+            return {}
     return {}
 
 
@@ -71,6 +75,9 @@ def save_cache(school_code: str, username: str, data: Dict[str, Any]):
 
 
 def is_cache_fresh(school_code: str, username: str) -> bool:
+    # 缓存数据文件不存在时直接视为过期（即使元数据时间戳仍新鲜）→ 强制回源更新
+    if not os.path.exists(get_cache_path(school_code, username)):
+        return False
     info = load_user_info(school_code, username)
     last_fetch = info.get('last_fetch_time')
     if not last_fetch:
@@ -431,7 +438,17 @@ def Main(username: str, onceMd5Password: str, remindTime: str,
         
         if is_cache_fresh(school_code, username):
             school_data = load_cache(school_code, username)
-            info["last_access_time"] = now
+            # 防御：元数据新鲜但缓存数据缺失/损坏/为空 → 视为无效缓存，强制回源
+            if not school_data.get('courses'):
+                school_data = SchoolDispatcher.get_timetable(
+                    school_code, username, onceMd5Password,
+                    school_year=school_year, term=term, all_semesters=all_semesters, **kwargs
+                )
+                save_cache(school_code, username, school_data)
+                info["last_access_time"] = now
+                info["last_fetch_time"] = now
+            else:
+                info["last_access_time"] = now
             save_user_info(school_code, username, info)
         else:
             try:

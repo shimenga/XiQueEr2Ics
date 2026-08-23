@@ -7,7 +7,6 @@ import os
 import sys
 import hashlib
 import base64
-import execjs
 import re
 import json
 import threading
@@ -23,7 +22,6 @@ from typing import Optional, List, Dict, Any, Tuple
 logger = logging.getLogger(__name__)
 
 # ============ 全局缓存 ============
-_KINGO_DES_JS_CACHE = None
 _SCHOOL_CALENDAR_CACHE = None
 _CONFIG_CACHE = None
 _CALENDAR_PATH = os.path.join(os.path.dirname(__file__), 'school_calendar.json')
@@ -89,23 +87,17 @@ class XqeLibs:
 
 
 class KingoDES:
-    """基于 JavaScript 的 DES 加密"""
-    
+    """纯 Python DES 加密（jkingo.des.js 的移植版，见同目录 jkingo_des.py）"""
+
     def __init__(self):
-        global _KINGO_DES_JS_CACHE
-        if _KINGO_DES_JS_CACHE is None:
-            with _INIT_LOCK:
-                if _KINGO_DES_JS_CACHE is None:
-                    js_path = os.path.join(os.path.dirname(__file__), 'jkingo.des.js')
-                    with open(js_path, 'r', encoding='utf-8') as f:
-                        _KINGO_DES_JS_CACHE = f.read()
-        self.kingo_des_compiled = execjs.compile(_KINGO_DES_JS_CACHE)
-    
+        if str(os.path.dirname(__file__)) not in sys.path:
+            sys.path.insert(0, os.path.dirname(__file__))
+        from jkingo_des import KingoDES as _PurePythonKingoDES
+        self._impl = _PurePythonKingoDES()
+
     def encrypt(self, data: str, des_key: str) -> str:
         """DES 加密"""
-        encrypted_hex = self.kingo_des_compiled.call("strEnc", data, des_key, None, None)
-        encrypted_base64 = base64.b64encode(encrypted_hex.encode('utf-8')).decode('utf-8')
-        return encrypted_base64
+        return self._impl.encrypt(data, des_key)
 
 
 class SchoolCalendar:
