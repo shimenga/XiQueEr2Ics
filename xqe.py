@@ -126,13 +126,31 @@ class TimetableParser:
         if not weeks_str:
             return []
         
+        # 处理末尾全局单双周标记（如 "1-4,6-16 双"、"1-16单"）。
+        # 教务系统中该标记通常位于整个周次字符串的末尾，作用于全部区间，
+        # 而不是只作用于最后一个区间。
+        s = str(weeks_str).strip()
+        global_odd = False
+        global_even = False
+        if s.endswith('单'):
+            global_odd = True
+            s = s[:-1]
+        elif s.endswith('双'):
+            global_even = True
+            s = s[:-1]
+        s = s.strip()
+        
         numbers = []
         
-        parts = str(weeks_str).split(',')
-        for part in parts:
+        for part in s.split(','):
             part = part.strip()
+            # 段内自带标记优先（如 "1-4单,6-16双"）；无标记时继承末尾全局标记
             is_odd = '单' in part
             is_even = '双' in part
+            
+            if not is_odd and not is_even:
+                is_odd = global_odd
+                is_even = global_even
             
             clean_part = part.replace('单', '').replace('双', '').strip()
             
